@@ -21,11 +21,22 @@ concurrency:
 jobs:
   deploy-ios:
     name: Build & Upload iOS to TestFlight
-    runs-on: macos-14
+    runs-on: macos-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Select Newest Xcode
+        run: |
+          echo "Available Xcode installations:"
+          ls -d /Applications/Xcode*.app || true
+          NEWEST_XCODE=$(find /Applications -maxdepth 1 -name "Xcode*.app" | sort -V | tail -n 1)
+          if [ -n "$NEWEST_XCODE" ]; then
+            echo "Selecting: $NEWEST_XCODE"
+            sudo xcode-select -s "$NEWEST_XCODE/Contents/Developer"
+          fi
+          xcodebuild -version
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
